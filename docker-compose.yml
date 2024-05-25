@@ -1,0 +1,28 @@
+services:
+  servidor-jenkins:
+    image: 'tfg2asircanaveral2024/4.8.2-jenkins-docker-cli-y-plugins:latest'
+    volumes:
+      # Estamos montando el fichero del Socket del host al contenedor, por lo que para 
+      # ejecutar este fichero Docker Compose, es necesario que o bien el host tenga instalado 
+      # el Daemon de Docker localmente o cuente con un fichero de Socket válido.
+      # Debes crear una variable de entorno llamada DOCKER_RUTA_SOCKET, donde 
+      # incluyas la ruta a tu fichero Socket. Si tu variable DOCKER_HOST ya apunta a 
+      # dicho archivo, puedes ejecutar lo siguiente:
+      
+        #> export DOCKER_RUTA_SOCKET=${DOCKER_HOST:7}
+      - ${DOCKER_RUTA_SOCKET}:/var/run/docker.sock:ro
+      # debes asegurarte de que la ruta /var/jenkins_home existe en tu host y 
+      # que tu usuario tiene permisos de escritura, de lo contrario, aunque 
+      # inicialmente funcionará, tu contenedor estará muy limitado y no podrá 
+      # ejecutar cualquier pipeline
+      - /var/jenkins_home:/var/jenkins_home
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - 8080:8080
+    networks:
+      - red-jenkins-dind
+
+networks:
+  red-jenkins-dind:
+    driver: bridge
